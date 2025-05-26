@@ -9,6 +9,7 @@ Create and compile a Keras model, then execute this code:
 
 ```python
 # model is a Keras model
+from keras_lr_finder import LRFinder
 lr_finder = LRFinder(model)
 
 # Train a model with batch size 512 for 5 epochs
@@ -38,12 +39,13 @@ Once the finder has picked your best learning rate, update your model to use it:
 # Set the learning rate of your model to the newly found one
 import keras.backend as K
 new_lr = lr_finder.get_best_lr(sma=4)
-K.set_value(model.optimizer.lr, new_lr)
+model.optimizer.learning_rate = new_lr
 ```
 You can wrap this up nicely in a `LambdaCallback`, so that you periodically update your learning rate:
 
 ```python
 from keras.callbacks import LambdaCallback
+from keras_lr_finder import LRFinder
 def find_lr(epoch, logs):
     # You may also make it more effective by only
     # running this if the loss has stopped improving a la ReduceLROnPlateau
@@ -51,7 +53,7 @@ def find_lr(epoch, logs):
         lrf = LRFinder(model)
         lrf.find(x_train,y_train, start_lr=0.0001, end_lr=1,batch_size=512,epochs=5)
         new_lr = lrf.get_best_lr(4)
-        K.set_value(model.optimizer.lr, new_lr)
+        model.optimizer.learning_rate = new_lr
     
 lcb = LambdaCallback(on_epoch_end=find_lr)
 model.train(callbacks=[lcb],...)
@@ -62,11 +64,13 @@ This library call also be used with generators (where `num_samples` is the total
 
 ```python
 lrf = LRFinder(model)
-lrf.find_generator(train_gen, 
-                   start_lr=0.0001, 
-                   end_lr=1, 
-                   epochs=5, 
-                   steps_per_epoch=num_samples // batch_size)
+lrf.find_generator(
+    train_gen, 
+    start_lr=0.0001, 
+    end_lr=1, 
+    epochs=5, 
+    steps_per_epoch=num_samples // batch_size
+)
 ```
 
 ## Contributions
