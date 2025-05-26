@@ -20,7 +20,7 @@ class LRFinder:
     def on_batch_end(self, batch, logs):
         # Log the learning rate
         lr = self.model.optimizer.learning_rate
-        self.lrs.append(lr)
+        self.lrs.append(float(lr))
 
         # Log the loss
         loss = logs['loss']
