@@ -45,7 +45,7 @@ class LRFinder:
 
         # Compute number of batches and LR multiplier
         num_batches = epochs * N / batch_size
-        self.lr_mult = (float(end_lr) / float(start_lr)) ** (float(1) / float(num_batches))
+        self.lr_mult = (float(end_lr) / float(start_lr)) ** (1.0 / float(num_batches))
         # Save weights into a file
         initial_weights = self.model.get_weights()
 
@@ -78,7 +78,7 @@ class LRFinder:
                         '`keras.utils.Sequence`'
                         ' class. Please specify `steps_per_epoch` '
                         'or use the `keras.utils.Sequence` class.')
-        self.lr_mult = (float(end_lr) / float(start_lr)) ** (float(1) / float(epochs * steps_per_epoch))
+        self.lr_mult = (float(end_lr) / float(start_lr)) ** (1.0 / float(epochs * steps_per_epoch))
 
         # Save weights into a file
         initial_weights = self.model.get_weights()
