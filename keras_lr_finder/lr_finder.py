@@ -1,7 +1,6 @@
 from matplotlib import pyplot as plt
 import math
 from keras.callbacks import LambdaCallback
-import keras.backend as K
 import numpy as np
 
 
@@ -20,7 +19,7 @@ class LRFinder:
 
     def on_batch_end(self, batch, logs):
         # Log the learning rate
-        lr = K.get_value(self.model.optimizer.lr)
+        lr = self.model.optimizer.learning_rate
         self.lrs.append(lr)
 
         # Log the loss
@@ -37,7 +36,7 @@ class LRFinder:
 
         # Increase the learning rate for the next batch
         lr *= self.lr_mult
-        K.set_value(self.model.optimizer.lr, lr)
+        self.model.optimizer.learning_rate = lr
 
     def find(self, x_train, y_train, start_lr, end_lr, batch_size=64, epochs=1, **kw_fit):
         # If x_train contains data for multiple inputs, use length of the first input.
@@ -51,10 +50,10 @@ class LRFinder:
         initial_weights = self.model.get_weights()
 
         # Remember the original learning rate
-        original_lr = K.get_value(self.model.optimizer.lr)
+        original_lr = self.model.optimizer.learning_rate
 
         # Set the initial learning rate
-        K.set_value(self.model.optimizer.lr, start_lr)
+        self.model.optimizer.learning_rate = start_lr
 
         callback = LambdaCallback(on_batch_end=lambda batch, logs: self.on_batch_end(batch, logs))
 
@@ -67,7 +66,7 @@ class LRFinder:
         self.model.set_weights(initial_weights)
 
         # Restore the original learning rate
-        K.set_value(self.model.optimizer.lr, original_lr)
+        self.model.optimizer.learning_rate = original_lr
 
     def find_generator(self, generator, start_lr, end_lr, epochs=1, steps_per_epoch=None, **kw_fit):
         if steps_per_epoch is None:
@@ -85,10 +84,10 @@ class LRFinder:
         initial_weights = self.model.get_weights()
 
         # Remember the original learning rate
-        original_lr = K.get_value(self.model.optimizer.lr)
+        original_lr = self.model.optimizer.learning_rate
 
         # Set the initial learning rate
-        K.set_value(self.model.optimizer.lr, start_lr)
+        self.model.optimizer.learning_rate = start_lr
 
         callback = LambdaCallback(on_batch_end=lambda batch,
                                                       logs: self.on_batch_end(batch, logs))
@@ -103,7 +102,7 @@ class LRFinder:
         self.model.set_weights(initial_weights)
 
         # Restore the original learning rate
-        K.set_value(self.model.optimizer.lr, original_lr)
+        self.model.optimizer.learning_rate = original_lr
 
     def plot_loss(self, n_skip_beginning=10, n_skip_end=5, x_scale='log'):
         """
