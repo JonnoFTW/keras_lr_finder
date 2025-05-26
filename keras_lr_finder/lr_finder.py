@@ -39,14 +39,14 @@ class LRFinder:
         self.model.optimizer.learning_rate = lr
 
     def find(self, x_train, y_train, start_lr, end_lr, batch_size=64, epochs=1, **kw_fit):
-        # If x_train contains data for multiple inputs, use length of the first input.
-        # Assumption: the first element in the list is single input; NOT a list of inputs.
+        # If x_train contains data for multiple inputs, use the length of the first input.
+        # Assumption: the first element in the list is single-input; NOT a list of inputs.
         N = x_train[0].shape[0] if isinstance(x_train, list) else x_train.shape[0]
 
-        # Compute number of batches and LR multiplier
+        # Compute the number of batches and LR multiplier
         num_batches = epochs * N / batch_size
         self.lr_mult = (float(end_lr) / float(start_lr)) ** (1.0 / float(num_batches))
-        # Save weights into a file
+        # Cache model weights
         initial_weights = self.model.get_weights()
 
         # Remember the original learning rate
@@ -80,7 +80,7 @@ class LRFinder:
                         'or use the `keras.utils.Sequence` class.')
         self.lr_mult = (float(end_lr) / float(start_lr)) ** (1.0 / float(epochs * steps_per_epoch))
 
-        # Save weights into a file
+        # Cache model weights
         initial_weights = self.model.get_weights()
 
         # Remember the original learning rate
@@ -119,12 +119,12 @@ class LRFinder:
 
     def plot_loss_change(self, sma=1, n_skip_beginning=10, n_skip_end=5, y_lim=(-0.01, 0.01)):
         """
-        Plots rate of change of the loss function.
+        Plots the rate of change of the loss function.
         Parameters:
             sma - number of batches for simple moving average to smooth out the curve.
             n_skip_beginning - number of batches to skip on the left.
             n_skip_end - number of batches to skip on the right.
-            y_lim - limits for the y axis.
+            y_lim - limits for the y-axis.
         """
         derivatives = self.get_derivatives(sma)[n_skip_beginning:-n_skip_end]
         lrs = self.lrs[n_skip_beginning:-n_skip_end]
